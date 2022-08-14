@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  gather_facts: no
+  collections:
+    - ansible.windows
+    - community.vmware
+
+  tasks:
+  - name: "Create a Windown Machine from Latest Template"
+    vmware.vmware_rest.vcenter_vm_hardware_cdrom_info:
+        vcenter_hostname: "{{ vmware_host }}"
+        vcenter_username: "{{ vmware_username }}"
+        vcenter_password: "{{ vmware_password }}"
+        vm: "{{ vm_name }}"

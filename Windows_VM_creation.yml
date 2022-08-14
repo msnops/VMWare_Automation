@@ -1,0 +1,50 @@
+---
+- hosts: localhost
+  gather_facts: no
+  collections:
+    - ansible.windows
+    - community.vmware
+  tasks:
+  - name: "Create a Windown Machine from Latest Template"
+    vmware_guest:
+        hostname: "{{ vmware_host }}"
+        annotation: "{{ vm_notes }}"
+        username: "{{ vmware_username }}"
+        password: "{{ vmware_password }}"
+        validate_certs: False
+        datacenter: "{{ vm_datacenter }}"
+        cluster: "{{ vm_cluster }}"
+        name: "{{ vm_name }}"
+        template: "{{ vm_template_full }}"
+        folder: "{{ vm_folder }}"
+        datastore: "{{ vm_datastore }}"
+        hardware:
+          num_cpus: "{{ vm_cpu }}"
+          num_cpu_cores_per_socket: "{{ vm_cpu_cores }}"
+          hotadd_cpu: yes
+          hotadd_memory: yes
+          memory_mb: "{{ vm_ram }}"
+        networks: 
+        - name: "{{ vm_netname }}"
+          start_connected: yes
+          ip: "{{ vm_ip }}"
+          netmask: "{{ vm_mask }}"
+          gateway: "{{ vm_gw }}"
+          type: static  
+        customization:
+          fullname: "Windows Machine"
+          orgname: "Organaisation Name"
+          timezone: 150
+          dns_servers:
+           - 8.8.8.8
+           - 8.8.4.4
+          domain: "{{ var_domain_name }}"
+          joindomain: "{{ var_domain_name }}"
+          password: "{{ setup_password }}"
+          domainadmin: "{{ vmware_username }}"
+          domainadminpassword: "{{ vmware_password }}"
+
+        state: poweredon
+        wait_for_customization: yes
+        wait_for_ip_address: yes    
+    delegate_to: localhost

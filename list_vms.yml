@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  gather_facts: no
+  collections:
+    - ansible.windows
+    - community.vmware
+    - vmware.vmware_rest
+  tasks:
+  - name: Gather all registered virtual machines
+    vmware_datacenter_info:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      datacenter_name: 'VCenter Data Center Name'
+      validate_certs: false
+    delegate_to: localhost
+    register: vminfo
+
+  - debug:
+      var: vminfo.stdout

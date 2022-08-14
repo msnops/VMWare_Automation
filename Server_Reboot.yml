@@ -1,0 +1,18 @@
+---
+- name: reboot the newly created VM After OU Change
+  hosts: localhost
+  gather_facts: no
+  collections:
+    - ansible.windows
+    - community.vmware
+  tasks:
+    - name: reboot the VMs
+      vmware_guest:
+        hostname: "{{ item.var_vmware_host }}"
+        username: "{{ vmware_username }}"
+        password: "{{ vmware_password }}"
+        validate_certs: False     
+        name: "{{ item.vm_name }}"
+        state: restarted
+      with_items:
+        - "{{ vmdetails }}"

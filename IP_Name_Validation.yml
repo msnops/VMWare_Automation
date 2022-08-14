@@ -1,0 +1,39 @@
+---
+
+- hosts: localhost
+  gather_facts: False
+  connection: local
+
+  tasks:
+    - name: ping the given IP {{ vm_ip }}
+      shell: ping -c 1 -w 2 {{ vm_ip }}
+      ignore_errors: true
+      register: ping_status
+
+    - name: Fail the task if the given IP is pingable from Ansible Tower
+      fail:
+        msg: "The Provided IP {{ vm_ip }} has been used and able to ping"
+      when: ping_status is succeeded
+
+    - name: Check all port numbers are accessible from the Ansible Tower TO Given IP {{ vm_ip }}
+      wait_for:
+        host: "{{ vm_ip }}"
+        port: "{{ item }}"
+        state: absent         
+        delay: 0               
+        timeout: 3             
+        msg: The port {{ item }} is reachable
+      with_items:
+        - "{{ 22 }}"
+        - "{{ 3389 }}"
+        - "{{ 443 }}"
+        - "{{ 80 }}"
+    - name: Register nslookup hostname result
+      command: 'nslookup -vc {{ vm_name }}.{{ var_domain_name }} {{ DNS_Server }}'
+      register: name_lookup
+      ignore_errors: yes
+
+    - name: Fail the task if the given Name having DNS record 
+      fail:
+        msg: "The Provided Host Name {{ vm_name }} has been used and able to nslookup"
+      when: name_lookup is succeeded
